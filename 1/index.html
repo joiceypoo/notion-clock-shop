@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notion Clock Widget</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .clock-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .clock {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-size: 88px;
+      color: #32302C;
+      letter-spacing: 0;
+      font-weight: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock-container">
+    <span class="clock" id="clock">12:55</span>
+  </div>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      let m = now.getMinutes();
+      h = h < 10 ? '0' + h : h;
+      m = m < 10 ? '0' + m : m;
+      document.getElementById('clock').textContent = `${h}:${m}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html> 
