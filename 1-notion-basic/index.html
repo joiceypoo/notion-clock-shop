@@ -13,10 +13,40 @@
       height: 100vh;
       margin: 0;
     }
+    .flip-container {
+      perspective: 1000px;
+      width: 300px;
+      height: 100px;
+    }
+    .flipper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-container.flipped .flipper {
+      transform: rotateY(180deg);
+    }
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .back {
+      transform: rotateY(180deg);
+      background: #F9F9F9;
+      border-radius: 8px;
+    }
     .clock-container {
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -24,22 +54,173 @@
       color: #32302C;
       letter-spacing: 0;
       font-weight: 100;
+      display: inline-flex;
+      align-items: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .colon {
+      display: inline-block;
+      margin: 0;
+      width: 0.3em;
+      text-align: center;
+      position: relative;
+      top: -0.1em;
+    }
+    .colon.blink {
+      animation: blink 6s infinite;
+      transition: opacity 0.6s linear;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      15% { opacity: 0; }
+      35% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .edit-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      color: #666;
+      font-size: 16px;
+    }
+    .clock-container:hover .edit-button {
+      opacity: 1;
+    }
+    .settings-content {
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 15px 0;
+      padding: 0 20px;
+    }
+    .toggle-label {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      color: #32302C;
+      font-size: 14px;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 51px;
+      height: 31px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e9e9eb;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 27px;
+      width: 27px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+      background-color: #34c759;
+    }
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+    .seconds {
+      font-size: 1em;
+      margin-left: 2px;
     }
   </style>
 </head>
 <body>
-  <div class="clock-container">
-    <span class="clock" id="clock">12:55</span>
+  <div class="flip-container">
+    <div class="flipper">
+      <div class="front">
+        <div class="clock-container">
+          <span class="clock" id="clock">12:55</span>
+          <button class="edit-button" onclick="flipCard()">⚙️</button>
+        </div>
+      </div>
+      <div class="back">
+        <div class="settings-content">
+          <h3>Settings</h3>
+          <div class="toggle-container">
+            <span class="toggle-label">Blinking Colon</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label">Show Seconds</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="secondsToggle" onchange="toggleSeconds()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <button onclick="flipCard()">Back</button>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
+    let blinkEnabled = false;
+    let showSeconds = false;
+
     function updateClock() {
       const now = new Date();
       let h = now.getHours();
       let m = now.getMinutes();
+      let s = now.getSeconds();
       h = h < 10 ? '0' + h : h;
       m = m < 10 ? '0' + m : m;
-      document.getElementById('clock').textContent = `${h}:${m}`;
+      s = s < 10 ? '0' + s : s;
+      
+      const timeDisplay = `${h}<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${m}`;
+      const secondsDisplay = showSeconds ? `<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${s}` : '';
+      
+      document.getElementById('clock').innerHTML = timeDisplay + secondsDisplay;
     }
+    
+    function flipCard() {
+      document.querySelector('.flip-container').classList.toggle('flipped');
+    }
+
+    function toggleBlink() {
+      blinkEnabled = document.getElementById('blinkToggle').checked;
+      updateClock();
+    }
+
+    function toggleSeconds() {
+      showSeconds = document.getElementById('secondsToggle').checked;
+      updateClock();
+    }
+    
+    // Initialize
+    document.getElementById('blinkToggle').checked = false;
+    document.getElementById('secondsToggle').checked = false;
     updateClock();
     setInterval(updateClock, 1000);
   </script>
