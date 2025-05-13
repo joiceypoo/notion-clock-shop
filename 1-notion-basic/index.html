@@ -39,8 +39,14 @@
     }
     .back {
       transform: rotateY(180deg);
-      background: #F9F9F9;
-      border-radius: 8px;
+      background: #f5f5f7;
+      border-radius: 10px;
+      box-shadow: 0 1.5px 8px 0 rgba(0,0,0,0.03);
+      border: 1px solid #e0e0e5;
+      padding: 24px 0 24px 0;
+      min-width: 340px;
+      min-height: 420px;
+      position: relative;
     }
     .clock-container {
       display: flex;
@@ -110,33 +116,36 @@
       text-align: left;
     }
     .timezone-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
       color: #32302C;
-      font-size: 14px;
+      font-size: 15px;
       margin-bottom: 8px;
       display: block;
+      font-weight: 400;
     }
     .timezone-select {
       width: 100%;
       padding: 8px;
       border: 1px solid #e0e0e0;
       border-radius: 6px;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 14px;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
       color: #32302C;
       background-color: white;
       cursor: pointer;
+      font-weight: 400;
     }
     .toggle-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
       color: #32302C;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 400;
     }
     .toggle-switch {
       position: relative;
       display: inline-block;
-      width: 51px;
-      height: 31px;
+      width: 40px;
+      height: 22px;
     }
     .toggle-switch input {
       opacity: 0;
@@ -150,26 +159,29 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #e9e9eb;
-      transition: .4s;
-      border-radius: 34px;
+      background-color: #d1d1d6;
+      transition: .3s;
+      border-radius: 12px;
+      border: 1px solid #bdbdc2;
     }
     .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 27px;
-      width: 27px;
+      height: 18px;
+      width: 18px;
       left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
+      top: 1.5px;
+      background-color: #fff;
+      transition: .3s;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px 0 rgba(60,60,67,0.15);
     }
     input:checked + .toggle-slider {
-      background-color: #34c759;
+      background-color: #0071e3;
+      border: 1px solid #0071e3;
     }
     input:checked + .toggle-slider:before {
-      transform: translateX(20px);
+      transform: translateX(18px);
     }
     .seconds {
       font-size: 1em;
@@ -181,11 +193,12 @@
       text-align: left;
     }
     .color-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
       color: #32302C;
-      font-size: 14px;
+      font-size: 15px;
       margin-bottom: 8px;
       display: block;
+      font-weight: 400;
     }
     .color-picker {
       width: 100%;
@@ -195,6 +208,9 @@
       border-radius: 6px;
       background-color: white;
       cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      font-weight: 400;
     }
     .color-picker::-webkit-color-swatch-wrapper {
       padding: 0;
@@ -204,19 +220,40 @@
       border-radius: 4px;
     }
     .reset-button {
-      margin: 20px auto;
-      padding: 8px 16px;
-      background-color: #f5f5f5;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      color: #d7263d;
+      font-weight: 400;
       font-size: 14px;
-      color: #32302C;
+      margin: 18px auto 0 auto;
+      padding: 5px 18px;
+      background: #f5f5f7;
+      border: 1px solid #d1d1d6;
+      border-radius: 6px;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background 0.2s, border 0.2s;
     }
     .reset-button:hover {
-      background-color: #e5e5e5;
+      background: #e0e0e5;
+      border: 1px solid #bdbdc2;
+    }
+    .nav-back-button {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: transparent;
+      border: none;
+      color: #0071e3;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      font-weight: 400;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+    }
+    .nav-back-button:active {
+      opacity: 0.6;
     }
   </style>
 </head>
@@ -231,38 +268,11 @@
       </div>
       <div class="back">
         <div class="settings-content">
-          <h3>Settings</h3>
-          <div class="toggle-container">
-            <span class="toggle-label">Blinking Colon</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="toggle-container">
-            <span class="toggle-label">Show Seconds</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="secondsToggle" onchange="toggleSeconds()">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="toggle-container">
-            <span class="toggle-label">24-Hour Format</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="color-container">
-            <label class="color-label">Text Color</label>
-            <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
-          </div>
-          <button class="reset-button" onclick="resetSettings()">Reset to Default</button>
+          <button class="nav-back-button" onclick="flipCard()">&#8592; <span>Done</span></button>
           <div class="timezone-container">
             <label class="timezone-label">Time Zone</label>
             <select class="timezone-select" id="timezoneSelect" onchange="updateTimezone()">
               <option value="local">Local Time</option>
-              <option value="UTC">UTC</option>
               <optgroup label="North America">
                 <option value="America/New_York">Eastern Time (ET)</option>
                 <option value="America/Chicago">Central Time (CT)</option>
@@ -301,7 +311,32 @@
               </optgroup>
             </select>
           </div>
-          <button onclick="flipCard()">Back</button>
+          <div class="toggle-container">
+            <span class="toggle-label">Show Seconds</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="secondsToggle" onchange="toggleSeconds()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label">Blinking Colon</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label">24-Hour Format</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="color-container">
+            <label class="color-label">Text Color</label>
+            <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
+          </div>
+          <button class="reset-button" onclick="resetSettings()">Reset to Default</button>
         </div>
       </div>
     </div>
