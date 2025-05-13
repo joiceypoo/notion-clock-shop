@@ -39,13 +39,12 @@
     }
     .back {
       transform: rotateY(180deg);
-      background: #f5f5f7;
+      background: #fff;
       border-radius: 10px;
-      box-shadow: 0 1.5px 8px 0 rgba(0,0,0,0.03);
-      border: 1px solid #e0e0e5;
-      padding: 24px 0 24px 0;
-      min-width: 340px;
-      min-height: 420px;
+      border: 1px solid #ededed;
+      box-shadow: none;
+      min-width: 320px;
+      min-height: 400px;
       position: relative;
     }
     .clock-container {
@@ -56,7 +55,7 @@
     }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 60px;
+      font-size: 48px;
       color: #32302C;
       letter-spacing: 0;
       font-weight: 100;
@@ -102,50 +101,33 @@
       padding: 20px;
       text-align: center;
       width: 100%;
+      color: #222;
+      font-size: 15px;
     }
-    .toggle-container {
+    .toggle-container, .color-container, .timezone-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: 15px 0;
-      padding: 0 20px;
+      margin: 0;
+      padding: 10px 0;
     }
-    .timezone-container {
-      margin: 15px 0;
-      padding: 0 20px;
-      text-align: left;
-    }
-    .timezone-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      color: #32302C;
-      font-size: 15px;
-      margin-bottom: 8px;
-      display: block;
-      font-weight: 400;
-    }
-    .timezone-select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    .toggle-label, .timezone-label, .color-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-weight: 500;
       font-size: 15px;
       color: #32302C;
-      background-color: white;
-      cursor: pointer;
-      font-weight: 400;
+      display: flex;
+      align-items: center;
     }
-    .toggle-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      color: #32302C;
+    .timezone-select, .color-picker {
       font-size: 15px;
-      font-weight: 400;
+      font-weight: 500;
     }
     .toggle-switch {
       position: relative;
       display: inline-block;
-      width: 40px;
-      height: 22px;
+      width: 32px;
+      height: 18px;
     }
     .toggle-switch input {
       opacity: 0;
@@ -159,101 +141,122 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #d1d1d6;
+      background-color: #e9e9eb;
       transition: .3s;
-      border-radius: 12px;
-      border: 1px solid #bdbdc2;
+      border-radius: 16px;
     }
     .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
+      height: 14px;
+      width: 14px;
       left: 2px;
-      top: 1.5px;
-      background-color: #fff;
+      bottom: 2px;
+      background-color: white;
       transition: .3s;
-      border-radius: 6px;
-      box-shadow: 0 1px 2px 0 rgba(60,60,67,0.15);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
     input:checked + .toggle-slider {
-      background-color: #0071e3;
-      border: 1px solid #0071e3;
+      background-color: #34c759;
     }
     input:checked + .toggle-slider:before {
-      transform: translateX(18px);
+      transform: translateX(14px);
     }
     .seconds {
       font-size: 1em;
       margin-left: 2px;
     }
-    .color-container {
-      margin: 15px 0;
-      padding: 0 20px;
-      text-align: left;
-    }
-    .color-label {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      color: #32302C;
-      font-size: 15px;
-      margin-bottom: 8px;
-      display: block;
-      font-weight: 400;
-    }
-    .color-picker {
-      width: 100%;
-      height: 36px;
-      padding: 2px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      background-color: white;
-      cursor: pointer;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      font-size: 15px;
-      font-weight: 400;
-    }
-    .color-picker::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-    .color-picker::-webkit-color-swatch {
-      border: none;
-      border-radius: 4px;
-    }
     .reset-button {
-      color: #d7263d;
-      font-weight: 400;
-      font-size: 14px;
-      margin: 18px auto 0 auto;
-      padding: 5px 18px;
-      background: #f5f5f7;
-      border: 1px solid #d1d1d6;
-      border-radius: 6px;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      background: none;
+      border: none;
+      color: #32302C;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s, border 0.2s;
+      padding: 0;
+      margin: 4px 0 0 0;
+      text-align: left;
+      text-decoration: none;
+      transition: color 0.2s;
+      display: block;
+      width: 100%;
     }
     .reset-button:hover {
-      background: #e0e0e5;
-      border: 1px solid #bdbdc2;
+      color: #ed5561;
+      text-decoration: none;
     }
-    .nav-back-button {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      background: transparent;
-      border: none;
-      color: #0071e3;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      font-size: 15px;
-      font-weight: 400;
+    .nav-done-button {
+      color: #787774;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
+      padding: 0 8px;
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
+      position: absolute;
+      top: 16px;
+      left: 18px;
+      right: auto;
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 0;
+      gap: 6px;
+      background: none;
+      border: none;
     }
-    .nav-back-button:active {
-      opacity: 0.6;
+    .nav-done-button:active {
+      color: #888;
+    }
+    .say-hi-container {
+      margin-top: 32px;
+      padding: 0 0 0 0;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .say-hi-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .say-hi-img {
+      height: 32px;
+      width: 32px;
+      margin-left: 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+    .say-hi-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      color: #32302C;
+      margin-bottom: 2px;
+      font-weight: 500;
+    }
+    .say-hi-email {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 14px;
+      color: #4583f3;
+      text-decoration: none;
+      font-weight: 400;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .settings-divider {
+      border: none;
+      border-bottom: 1px solid #ededed;
+      margin: 12px 0 12px 0;
+      height: 0;
+    }
+    .settings-icon {
+      width: 15px;
+      height: 15px;
+      margin-right: 10px;
+      display: inline-block;
     }
   </style>
 </head>
@@ -268,9 +271,12 @@
       </div>
       <div class="back">
         <div class="settings-content">
-          <button class="nav-back-button" onclick="flipCard()">&#8592; <span>Done</span></button>
+          <button class="nav-done-button" onclick="flipCard()">
+            <img src="img/icon-chveron-left.svg" alt="Back" style="width:16px;height:16px;display:inline-block;vertical-align:middle;" />
+            Clock
+          </button>
           <div class="timezone-container">
-            <label class="timezone-label">Time Zone</label>
+            <label class="timezone-label"><img src="img/icon-croissant.svg" class="settings-icon" alt="Time Zone" />Time Zone</label>
             <select class="timezone-select" id="timezoneSelect" onchange="updateTimezone()">
               <option value="local">Local Time</option>
               <optgroup label="North America">
@@ -311,32 +317,42 @@
               </optgroup>
             </select>
           </div>
+          <hr class="settings-divider" />
           <div class="toggle-container">
-            <span class="toggle-label">Show Seconds</span>
+            <span class="toggle-label"><img src="img/icon-flower.svg" class="settings-icon" alt="24 hour clock" />24 hour clock</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-infinity.svg" class="settings-icon" alt="Seconds" />Seconds</span>
             <label class="toggle-switch">
               <input type="checkbox" id="secondsToggle" onchange="toggleSeconds()">
               <span class="toggle-slider"></span>
             </label>
           </div>
           <div class="toggle-container">
-            <span class="toggle-label">Blinking Colon</span>
+            <span class="toggle-label"><img src="img/icon-colon.svg" class="settings-icon" alt="Blinking Colon" />Blinking Colon</span>
             <label class="toggle-switch">
               <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="toggle-container">
-            <span class="toggle-label">24-Hour Format</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
           <div class="color-container">
-            <label class="color-label">Text Color</label>
+            <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
             <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
           </div>
-          <button class="reset-button" onclick="resetSettings()">Reset to Default</button>
+          <hr class="settings-divider" />
+          <button class="reset-button" onclick="resetSettings()"><img src="img/icon-fish.svg" class="settings-icon" alt="Reset Styles" />Reset Styles</button>
+          <hr class="settings-divider" />
+          <div class="say-hi-container">
+            <div class="say-hi-content">
+              <div class="say-hi-label">Say hi :)</div>
+              <a class="say-hi-email" href="mailto:clememtinesaintchild@gmail.com">clememtinesaintchild@gmail.com</a>
+            </div>
+            <img src="img/clem.png" alt="Clem" class="say-hi-img" />
+          </div>
         </div>
       </div>
     </div>
