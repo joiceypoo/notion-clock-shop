@@ -107,7 +107,7 @@
       z-index: 2;
     }
     .clock-container:hover .edit-button {
-      opacity: 1;
+      opacity: 0.8;
     }
     .flip-container.flipped .edit-button {
       display: none;
@@ -323,8 +323,8 @@
     }
     .edit-icon-button img {
       filter: brightness(0) invert(1);
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       display: block;
       vertical-align: middle;
     }
@@ -336,7 +336,7 @@
       align-items: center;
       justify-content: space-between;
       margin: 0;
-      padding: 7px 0;
+      padding: 5px 0;
     }
   </style>
 </head>
@@ -347,7 +347,7 @@
         <div class="clock-container">
           <button class="edit-button" onclick="flipCard()">
             <span class="edit-icon-button">
-              <img src="img/icon-sparkles.svg" alt="Settings" />
+              <img src="img/icon-butterfly.svg" alt="Settings" />
             </span>
           </button>
           <span class="clock" id="clock">12:55</span>
