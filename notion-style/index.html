@@ -444,6 +444,13 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-opacity.svg" class="settings-icon" alt="Dark Mode" />Dark mode</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <div class="color-container">
             <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
             <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
@@ -468,13 +475,15 @@
     let currentTimezone = 'local';
     let useMilitaryTime = false;
     let textColor = '#32302C';
+    let darkMode = false;
 
     const DEFAULT_SETTINGS = {
       blinkEnabled: false,
       showSeconds: false,
       currentTimezone: 'local',
       useMilitaryTime: false,
-      textColor: '#32302C'
+      textColor: '#32302C',
+      darkMode: false
     };
 
     function saveSettings() {
@@ -483,7 +492,8 @@
         showSeconds,
         currentTimezone,
         useMilitaryTime,
-        textColor: document.getElementById('colorPicker').value
+        textColor: document.getElementById('colorPicker').value,
+        darkMode
       };
       localStorage.setItem('clockSettings', JSON.stringify(settings));
     }
@@ -495,6 +505,7 @@
       document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
       document.getElementById('timezoneSelect').value = DEFAULT_SETTINGS.currentTimezone;
       document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
+      document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.darkMode;
 
       // Reset state variables
       blinkEnabled = DEFAULT_SETTINGS.blinkEnabled;
@@ -502,9 +513,10 @@
       currentTimezone = DEFAULT_SETTINGS.currentTimezone;
       useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
       textColor = DEFAULT_SETTINGS.textColor;
+      darkMode = DEFAULT_SETTINGS.darkMode;
 
       // Update the clock display
-      document.querySelector('.clock').style.color = textColor;
+      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
       updateClock();
       saveSettings();
     }
@@ -563,6 +575,12 @@
       saveSettings();
     }
 
+    function toggleDarkMode() {
+      darkMode = document.getElementById('darkModeToggle').checked;
+      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
+      saveSettings();
+    }
+
     function updateTimezone() {
       currentTimezone = document.getElementById('timezoneSelect').value;
       updateClock();
@@ -578,18 +596,21 @@
       currentTimezone = settings.currentTimezone ?? 'local';
       useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
       textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
+      darkMode = settings.darkMode ?? DEFAULT_SETTINGS.darkMode;
       document.getElementById('blinkToggle').checked = blinkEnabled;
       document.getElementById('secondsToggle').checked = showSeconds;
       document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
       document.getElementById('timezoneSelect').value = currentTimezone;
       document.getElementById('colorPicker').value = textColor;
-      document.querySelector('.clock').style.color = textColor;
+      document.getElementById('darkModeToggle').checked = darkMode;
+      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
     } else {
       document.getElementById('blinkToggle').checked = DEFAULT_SETTINGS.blinkEnabled;
       document.getElementById('secondsToggle').checked = DEFAULT_SETTINGS.showSeconds;
       document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
       document.getElementById('timezoneSelect').value = 'local';
       document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
+      document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.darkMode;
       document.querySelector('.clock').style.color = DEFAULT_SETTINGS.textColor;
     }
 
