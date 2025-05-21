@@ -58,7 +58,16 @@
       position: relative;
       display: flex;
       align-items: center;
+      width: 100%;
+    }
+    .clock-container.align-left {
+      justify-content: flex-start;
+    }
+    .clock-container.align-center {
       justify-content: center;
+    }
+    .clock-container.align-right {
+      justify-content: flex-end;
     }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -355,6 +364,25 @@
       margin: 0;
       padding: 6px 0;
     }
+    .alignment-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .alignment-btn {
+      background: none;
+      border: 1px solid #ededed;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .alignment-btn.active {
+      background: #32302C;
+      color: white;
+      border-color: #32302C;
+    }
   </style>
 </head>
 <body>
@@ -449,6 +477,14 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Text Alignment" />Text alignment</span>
+            <div class="alignment-buttons">
+              <button class="alignment-btn" data-align="left" onclick="setTextAlignment('left')">Left</button>
+              <button class="alignment-btn" data-align="center" onclick="setTextAlignment('center')">Center</button>
+              <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">Right</button>
+            </div>
+          </div>
           <div class="color-container">
             <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
             <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
@@ -474,6 +510,7 @@
     let useMilitaryTime = false;
     let textColor = '#32302C';
     let darkMode = false;
+    let textAlignment = 'center';
 
     const DEFAULT_SETTINGS = {
       blinkEnabled: false,
@@ -481,7 +518,8 @@
       currentTimezone: 'local',
       useMilitaryTime: false,
       textColor: '#32302C',
-      darkMode: false
+      darkMode: false,
+      textAlignment: 'center'
     };
 
     function saveSettings() {
@@ -491,7 +529,8 @@
         currentTimezone,
         useMilitaryTime,
         textColor: document.getElementById('colorPicker').value,
-        darkMode
+        darkMode,
+        textAlignment
       };
       localStorage.setItem('clockSettings', JSON.stringify(settings));
     }
@@ -512,9 +551,11 @@
       useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
       textColor = DEFAULT_SETTINGS.textColor;
       darkMode = DEFAULT_SETTINGS.darkMode;
+      textAlignment = DEFAULT_SETTINGS.textAlignment;
 
       // Update the clock display
       document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
+      setTextAlignment(textAlignment);
       updateClock();
       saveSettings();
     }
@@ -584,6 +625,20 @@
       updateClock();
       saveSettings();
     }
+
+    function setTextAlignment(alignment) {
+      textAlignment = alignment;
+      const clockContainer = document.querySelector('.clock-container');
+      clockContainer.className = 'clock-container';
+      clockContainer.classList.add(`align-${alignment}`);
+      
+      // Update button states
+      document.querySelectorAll('.alignment-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.align === alignment);
+      });
+      
+      saveSettings();
+    }
     
     // Initialize
     const savedSettings = localStorage.getItem('clockSettings');
@@ -595,6 +650,8 @@
       useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
       textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
       darkMode = settings.darkMode ?? DEFAULT_SETTINGS.darkMode;
+      textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
+      
       document.getElementById('blinkToggle').checked = blinkEnabled;
       document.getElementById('secondsToggle').checked = showSeconds;
       document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
@@ -602,6 +659,7 @@
       document.getElementById('colorPicker').value = textColor;
       document.getElementById('darkModeToggle').checked = darkMode;
       document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
+      setTextAlignment(textAlignment);
     } else {
       document.getElementById('blinkToggle').checked = DEFAULT_SETTINGS.blinkEnabled;
       document.getElementById('secondsToggle').checked = DEFAULT_SETTINGS.showSeconds;
@@ -610,6 +668,7 @@
       document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
       document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.darkMode;
       document.querySelector('.clock').style.color = DEFAULT_SETTINGS.textColor;
+      setTextAlignment(DEFAULT_SETTINGS.textAlignment);
     }
 
     // Update Local Time option with detected timezone
