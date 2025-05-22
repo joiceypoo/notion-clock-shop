@@ -14,8 +14,7 @@
     }
     .flip-container {
       perspective: 1000px;
-      width: 100%;
-      max-width: 240px;
+      width: fit-content;
       height: auto;
     }
     .flipper {
@@ -46,6 +45,7 @@
       align-items: flex-start;
       justify-content: center;
       padding-top: 12px;
+      min-width: fit-content;
     }
     .back {
       transform: rotateY(180deg);
@@ -55,7 +55,10 @@
       box-shadow: none;
       position: relative;
       height: auto;
-      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-width: 240px;
     }
     .clock-container {
       position: relative;
@@ -124,19 +127,22 @@
       display: none;
     }
     .settings-content {
-      padding: 12px;
       text-align: center;
       width: 100%;
       color: #222;
       font-size: 15px;
       height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .toggle-container, .timezone-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin: 0;
-      padding: 10px 0;
+      padding: 8px 0;
+      flex: 0 0 auto;
     }
     .toggle-label, .timezone-label, .color-label {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
@@ -145,11 +151,13 @@
       color: #32302C;
       display: flex;
       align-items: center;
+      flex: 1;
     }
     .timezone-select-wrapper {
       position: relative;
       display: inline-block;
       width: 120px;
+      flex: 0 0 auto;
     }
     .timezone-select {
       font-size: 15px;
@@ -256,7 +264,7 @@
       font-size: 15px;
       font-weight: 400;
       cursor: pointer;
-      padding: 10px 0;
+      padding: 8px 0;
       margin: 0;
       text-align: left;
       text-decoration: none;
@@ -264,6 +272,7 @@
       display: flex;
       align-items: center;
       width: 100%;
+      flex: 0 0 auto;
     }
     .reset-button:hover {
       color: #ed5561;
@@ -284,47 +293,11 @@
       background: none;
       border: none;
       padding: 0;
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
+      flex: 0 0 auto;
     }
     .nav-done-button:active {
       color: #888;
-    }
-    .say-hi-container {
-      text-align: left;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 0 0 0;
-      margin: 0;
-    }
-    .say-hi-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .say-hi-img {
-      height: 40px;
-      width: 40px;
-      border-radius: 1000px;
-      border: 1px solid #ededed;
-      object-fit: cover;
-    }
-    .say-hi-label {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      font-size: 15px;
-      color: #32302C;
-      margin-bottom: 2px;
-      font-weight: 400;
-    }
-    .say-hi-email {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-      font-size: 14px;
-      color: #ACABA9;
-      text-decoration: none;
-      font-weight: 300;
-      cursor: pointer;
-      display: inline-block;
     }
     .settings-divider {
       border: none;
@@ -335,7 +308,7 @@
     .settings-icon {
       width: 14px;
       height: 14px;
-      margin-right: 12px;
+      margin-right: 10px;
       display: inline-block;
       transition: filter 0.2s;
     }
@@ -367,26 +340,63 @@
       align-items: center;
       justify-content: space-between;
       margin: 0;
-      padding: 6px 0;
+      padding: 8px 0;
+      flex: 0 0 auto;
     }
     .alignment-buttons {
       display: flex;
       gap: 4px;
+      flex: 0 0 auto;
     }
     .alignment-btn {
       background: none;
       border: 1px solid #ededed;
       border-radius: 4px;
-      padding: 2px 8px;
+      padding: 2px 6px;
       font-size: 13px;
-      color: #666;
+      color: #ACABA9;
       cursor: pointer;
       transition: all 0.2s;
     }
     .alignment-btn.active {
-      background: #32302C;
+      background: #2383e2;
       color: white;
-      border-color: #32302C;
+    }
+    .say-hi-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      flex: 0 0 auto;
+    }
+    .say-hi-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+    }
+    .say-hi-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      color: #32302C;
+      font-weight: 400;
+    }
+    .say-hi-email {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 14px;
+      color: #ACABA9;
+      text-decoration: none;
+      font-weight: 300;
+      cursor: pointer;
+    }
+    .say-hi-img {
+      height: 40px;
+      width: 40px;
+      border-radius: 1000px;
+      border: 1px solid #ededed;
+      object-fit: cover;
+      flex: 0 0 auto;
     }
   </style>
 </head>
@@ -455,7 +465,7 @@
           </div>
           <hr class="settings-divider" />
           <div class="toggle-container">
-            <span class="toggle-label"><img src="img/icon-flower.svg" class="settings-icon" alt="24 hour clock" />24 hour clock</span>
+            <span class="toggle-label"><img src="img/icon-sun.svg" class="settings-icon" alt="24 hour clock" />24 hour clock</span>
             <label class="toggle-switch">
               <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
               <span class="toggle-slider"></span>
@@ -483,11 +493,11 @@
             </label>
           </div>
           <div class="toggle-container">
-            <span class="toggle-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Text Alignment" />Text alignment</span>
+            <span class="toggle-label"><img src="img/icon-cursor-text.svg" class="settings-icon" alt="Alignment" />Alignment</span>
             <div class="alignment-buttons">
-              <button class="alignment-btn" data-align="left" onclick="setTextAlignment('left')">Left</button>
-              <button class="alignment-btn" data-align="center" onclick="setTextAlignment('center')">Center</button>
-              <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">Right</button>
+              <button class="alignment-btn" data-align="left" onclick="setTextAlignment('left')">L</button>
+              <button class="alignment-btn" data-align="center" onclick="setTextAlignment('center')">C</button>
+              <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">R</button>
             </div>
           </div>
           <div class="color-container">
@@ -500,7 +510,7 @@
           <div class="say-hi-container">
             <div class="say-hi-content">
               <div class="say-hi-label">Say hi :)</div>
-              <a class="say-hi-email" href="mailto:clememtinesaintchild@gmail.com">clememtinesaintchild@gmail.com</a>
+              <a class="say-hi-email" href="mailto:clementinesaintchild@gmail.com">clementinesaintchild@gmail.com</a>
             </div>
             <img src="img/clem.png" alt="Clem" class="say-hi-img" />
           </div>
@@ -515,7 +525,7 @@
     let useMilitaryTime = false;
     let textColor = '#32302C';
     let darkMode = false;
-    let textAlignment = 'center';
+    let textAlignment = 'left';
 
     const DEFAULT_SETTINGS = {
       blinkEnabled: false,
@@ -524,7 +534,7 @@
       useMilitaryTime: false,
       textColor: '#32302C',
       darkMode: false,
-      textAlignment: 'center'
+      textAlignment: 'left'
     };
 
     function saveSettings() {
@@ -533,10 +543,11 @@
         showSeconds,
         currentTimezone,
         useMilitaryTime,
-        textColor: document.getElementById('colorPicker').value,
+        textColor,
         darkMode,
         textAlignment
       };
+      console.log('Saving settings:', settings);
       localStorage.setItem('clockSettings', JSON.stringify(settings));
     }
 
@@ -594,6 +605,7 @@
     function updateColor() {
       textColor = document.getElementById('colorPicker').value;
       document.querySelector('.clock').style.color = textColor;
+      console.log('Color updated:', textColor);
       saveSettings();
     }
     
@@ -642,38 +654,61 @@
         btn.classList.toggle('active', btn.dataset.align === alignment);
       });
       
+      console.log('Alignment updated:', textAlignment);
       saveSettings();
     }
     
     // Initialize
     const savedSettings = localStorage.getItem('clockSettings');
+    console.log('Loaded settings:', savedSettings);
     if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      blinkEnabled = settings.blinkEnabled ?? DEFAULT_SETTINGS.blinkEnabled;
-      showSeconds = settings.showSeconds ?? DEFAULT_SETTINGS.showSeconds;
-      currentTimezone = settings.currentTimezone ?? 'local';
-      useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
-      textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
-      darkMode = settings.darkMode ?? DEFAULT_SETTINGS.darkMode;
-      textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
-      
-      document.getElementById('blinkToggle').checked = blinkEnabled;
-      document.getElementById('secondsToggle').checked = showSeconds;
-      document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
-      document.getElementById('timezoneSelect').value = currentTimezone;
-      document.getElementById('colorPicker').value = textColor;
-      document.getElementById('darkModeToggle').checked = darkMode;
-      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
-      setTextAlignment(textAlignment);
+      try {
+        const settings = JSON.parse(savedSettings);
+        console.log('Parsed settings:', settings);
+        // Restore all settings with fallback to defaults
+        blinkEnabled = settings.blinkEnabled ?? DEFAULT_SETTINGS.blinkEnabled;
+        showSeconds = settings.showSeconds ?? DEFAULT_SETTINGS.showSeconds;
+        currentTimezone = settings.currentTimezone ?? DEFAULT_SETTINGS.currentTimezone;
+        useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
+        textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
+        darkMode = settings.darkMode ?? DEFAULT_SETTINGS.darkMode;
+        textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
+        
+        console.log('Restored settings:', {
+          textColor,
+          textAlignment
+        });
+        
+        // Update UI to reflect saved settings
+        document.getElementById('blinkToggle').checked = blinkEnabled;
+        document.getElementById('secondsToggle').checked = showSeconds;
+        document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
+        document.getElementById('timezoneSelect').value = currentTimezone;
+        document.getElementById('colorPicker').value = textColor;
+        document.getElementById('darkModeToggle').checked = darkMode;
+        
+        // Apply saved color and alignment
+        document.querySelector('.clock').style.color = textColor;
+        const clockContainer = document.querySelector('.clock-container');
+        clockContainer.className = 'clock-container';
+        clockContainer.classList.add(`align-${textAlignment}`);
+        
+        // Update alignment buttons
+        document.querySelectorAll('.alignment-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.align === textAlignment);
+        });
+        
+        // Update clock display
+        updateClock();
+      } catch (error) {
+        console.error('Error loading saved settings:', error);
+        // If there's an error loading settings, use defaults
+        resetSettings();
+      }
     } else {
-      document.getElementById('blinkToggle').checked = DEFAULT_SETTINGS.blinkEnabled;
-      document.getElementById('secondsToggle').checked = DEFAULT_SETTINGS.showSeconds;
-      document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
-      document.getElementById('timezoneSelect').value = 'local';
-      document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
-      document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.darkMode;
-      document.querySelector('.clock').style.color = DEFAULT_SETTINGS.textColor;
-      setTextAlignment(DEFAULT_SETTINGS.textAlignment);
+      console.log('No saved settings found, using defaults');
+      // No saved settings, use defaults
+      resetSettings();
     }
 
     // Update Local Time option with detected timezone
