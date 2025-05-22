@@ -14,6 +14,8 @@
     }
     .flip-container {
       perspective: 1000px;
+      width: 100%;
+      max-width: 240px;
       height: auto;
     }
     .flipper {
@@ -53,11 +55,13 @@
       box-shadow: none;
       position: relative;
       height: auto;
+      width: 100%;
     }
     .clock-container {
       position: relative;
       display: flex;
       align-items: center;
+      justify-content: center;
       width: 100%;
     }
     .clock-container.align-left {
@@ -71,13 +75,14 @@
     }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 48px;
+      font-size: clamp(32px, 5vw, 48px);
       color: #32302C;
       letter-spacing: 0;
       font-weight: 100;
       display: inline-flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
     .colon {
       display: inline-block;
