@@ -499,13 +499,6 @@
             </label>
           </div>
           <div class="toggle-container">
-            <span class="toggle-label"><img src="img/icon-opacity.svg" class="settings-icon" alt="Dark Mode" />Dark mode</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="toggle-container">
             <span class="toggle-label"><img src="img/icon-cursor-text.svg" class="settings-icon" alt="Alignment" />Alignment</span>
             <div class="alignment-buttons">
               <button class="alignment-btn" data-align="left" onclick="setTextAlignment('left')">L</button>
@@ -537,7 +530,6 @@
     let currentTimezone = 'local';
     let useMilitaryTime = false;
     let textColor = '#32302C';
-    let darkMode = false;
     let textAlignment = 'left';
 
     const DEFAULT_SETTINGS = {
@@ -546,7 +538,6 @@
       currentTimezone: 'local',
       useMilitaryTime: false,
       textColor: '#32302C',
-      darkMode: false,
       textAlignment: 'left'
     };
 
@@ -557,7 +548,6 @@
         currentTimezone,
         useMilitaryTime,
         textColor,
-        darkMode,
         textAlignment
       };
       console.log('Saving settings:', settings);
@@ -571,7 +561,6 @@
       document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
       document.getElementById('timezoneSelect').value = DEFAULT_SETTINGS.currentTimezone;
       document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
-      document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.darkMode;
 
       // Reset state variables
       blinkEnabled = DEFAULT_SETTINGS.blinkEnabled;
@@ -579,11 +568,10 @@
       currentTimezone = DEFAULT_SETTINGS.currentTimezone;
       useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
       textColor = DEFAULT_SETTINGS.textColor;
-      darkMode = DEFAULT_SETTINGS.darkMode;
       textAlignment = DEFAULT_SETTINGS.textAlignment;
 
       // Update the clock display
-      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
+      document.querySelector('.clock').style.color = textColor;
       setTextAlignment(textAlignment);
       updateClock();
       saveSettings();
@@ -644,12 +632,6 @@
       saveSettings();
     }
 
-    function toggleDarkMode() {
-      darkMode = document.getElementById('darkModeToggle').checked;
-      document.querySelector('.clock').style.color = darkMode ? '#fff' : textColor;
-      saveSettings();
-    }
-
     function updateTimezone() {
       currentTimezone = document.getElementById('timezoneSelect').value;
       updateClock();
@@ -684,7 +666,6 @@
         currentTimezone = settings.currentTimezone ?? DEFAULT_SETTINGS.currentTimezone;
         useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
         textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
-        darkMode = settings.darkMode ?? DEFAULT_SETTINGS.darkMode;
         textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
         
         console.log('Restored settings:', {
@@ -698,7 +679,6 @@
         document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
         document.getElementById('timezoneSelect').value = currentTimezone;
         document.getElementById('colorPicker').value = textColor;
-        document.getElementById('darkModeToggle').checked = darkMode;
         
         // Apply saved color and alignment
         document.querySelector('.clock').style.color = textColor;
