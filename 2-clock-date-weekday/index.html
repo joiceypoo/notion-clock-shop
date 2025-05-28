@@ -660,7 +660,22 @@
     }
     
     function flipCard() {
-      document.querySelector('.flip-container').classList.toggle('flipped');
+      const container = document.querySelector('.flip-container');
+      container.classList.toggle('flipped');
+      
+      // Remove blink class from colons when showing settings
+      if (container.classList.contains('flipped')) {
+        document.querySelectorAll('.colon').forEach(colon => {
+          colon.classList.remove('blink');
+        });
+      } else {
+        // Restore blink class if blinking is enabled
+        if (blinkEnabled) {
+          document.querySelectorAll('.colon').forEach(colon => {
+            colon.classList.add('blink');
+          });
+        }
+      }
     }
 
     function toggleBlink() {
