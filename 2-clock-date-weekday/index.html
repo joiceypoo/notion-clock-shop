@@ -83,6 +83,9 @@
       align-items: center;
       gap: 4px;
     }
+    .clock-wrapper.date-above {
+      flex-direction: column-reverse;
+    }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
       font-size: 48px;
@@ -419,7 +422,7 @@
     }
     .date {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       color: #32302C;
       letter-spacing: 0;
       font-weight: 400;
@@ -522,6 +525,13 @@
               <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">R</button>
             </div>
           </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-recycle.svg" class="settings-icon" alt="Date Position" />Date position top</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="datePositionToggle" onchange="toggleDatePosition()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <div class="color-container">
             <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
             <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
@@ -547,6 +557,7 @@
     let useMilitaryTime = false;
     let textColor = '#32302C';
     let textAlignment = 'left';
+    let dateAbove = false;
 
     const DEFAULT_SETTINGS = {
       blinkEnabled: false,
@@ -554,7 +565,8 @@
       currentTimezone: 'local',
       useMilitaryTime: false,
       textColor: '#32302C',
-      textAlignment: 'left'
+      textAlignment: 'left',
+      dateAbove: false
     };
 
     function saveSettings() {
@@ -564,7 +576,8 @@
         currentTimezone,
         useMilitaryTime,
         textColor,
-        textAlignment
+        textAlignment,
+        dateAbove
       };
       console.log('Saving settings:', settings);
       localStorage.setItem('clockSettings', JSON.stringify(settings));
@@ -577,6 +590,7 @@
       document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
       document.getElementById('timezoneSelect').value = DEFAULT_SETTINGS.currentTimezone;
       document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
+      document.getElementById('datePositionToggle').checked = DEFAULT_SETTINGS.dateAbove;
 
       // Reset state variables
       blinkEnabled = DEFAULT_SETTINGS.blinkEnabled;
@@ -585,9 +599,19 @@
       useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
       textColor = DEFAULT_SETTINGS.textColor;
       textAlignment = DEFAULT_SETTINGS.textAlignment;
+      dateAbove = DEFAULT_SETTINGS.dateAbove;
 
       // Update the clock display
       document.querySelector('.clock').style.color = textColor;
+      document.querySelector('.date').style.color = textColor;
+      
+      // Reset date position buttons
+      document.querySelectorAll('[data-position]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('[data-position="below"]').classList.add('active');
+      
+      updateDatePosition();
       setTextAlignment(textAlignment);
       updateClock();
       saveSettings();
@@ -677,6 +701,21 @@
       console.log('Alignment updated:', textAlignment);
       saveSettings();
     }
+
+    function toggleDatePosition() {
+      dateAbove = document.getElementById('datePositionToggle').checked;
+      updateDatePosition();
+      saveSettings();
+    }
+
+    function updateDatePosition() {
+      const clockWrapper = document.querySelector('.clock-wrapper');
+      if (dateAbove) {
+        clockWrapper.classList.add('date-above');
+      } else {
+        clockWrapper.classList.remove('date-above');
+      }
+    }
     
     // Initialize
     const savedSettings = localStorage.getItem('clockSettings');
@@ -692,10 +731,12 @@
         useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
         textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
         textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
+        dateAbove = settings.dateAbove ?? DEFAULT_SETTINGS.dateAbove;
         
         console.log('Restored settings:', {
           textColor,
-          textAlignment
+          textAlignment,
+          dateAbove
         });
         
         // Update UI to reflect saved settings
@@ -704,19 +745,18 @@
         document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
         document.getElementById('timezoneSelect').value = currentTimezone;
         document.getElementById('colorPicker').value = textColor;
+        document.getElementById('datePositionToggle').checked = dateAbove;
+        
+        // Update position buttons
+        document.querySelectorAll('[data-position]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.position === dateAbove);
+        });
         
         // Apply saved color and alignment
         document.querySelector('.clock').style.color = textColor;
-        const clockContainer = document.querySelector('.clock-container');
-        clockContainer.className = 'clock-container';
-        clockContainer.classList.add(`align-${textAlignment}`);
-        
-        // Update alignment buttons
-        document.querySelectorAll('.alignment-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.align === textAlignment);
-        });
-        
-        // Update clock display
+        document.querySelector('.date').style.color = textColor;
+        updateDatePosition();
+        setTextAlignment(textAlignment);
         updateClock();
       } catch (error) {
         console.error('Error loading saved settings:', error);
@@ -728,6 +768,9 @@
       // No saved settings, use defaults
       resetSettings();
     }
+
+    // Set initial button states for date position
+    document.querySelector('[data-position="below"]').classList.add('active');
 
     // Update Local Time option with detected timezone
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
