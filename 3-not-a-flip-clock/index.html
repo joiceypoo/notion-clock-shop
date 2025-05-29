@@ -83,9 +83,6 @@
       align-items: center;
       gap: 4px;
     }
-    .clock-wrapper.date-above {
-      flex-direction: column-reverse;
-    }
     .clock {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
       font-size: 48px;
@@ -97,6 +94,12 @@
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
+    .time-section {
+      background-color: #F9F9F9;
+      padding: 10px;
+      border-radius: 20px;
+      display: inline-block;
+    }
     .colon {
       display: inline-block;
       margin: 0;
@@ -104,17 +107,6 @@
       text-align: center;
       position: relative;
       top: -0.1em;
-    }
-    .colon.blink {
-      animation: blink 6s infinite;
-      transition: opacity 0.6s linear;
-    }
-    @keyframes blink {
-      0% { opacity: 1; }
-      15% { opacity: 0; }
-      35% { opacity: 0; }
-      50% { opacity: 1; }
-      100% { opacity: 1; }
     }
     .edit-button {
       position: absolute;
@@ -426,13 +418,6 @@
       object-fit: cover;
       flex: 0 0 auto;
     }
-    .date {
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 15px;
-      color: #32302C;
-      letter-spacing: 0;
-      font-weight: 300;
-    }
   </style>
 </head>
 <body>
@@ -447,7 +432,6 @@
           </button>
           <div class="clock-wrapper">
             <span class="clock" id="clock">12:55</span>
-            <span class="date" id="date">May 28, Wed</span>
           </div>
         </div>
       </div>
@@ -517,9 +501,9 @@
             </label>
           </div>
           <div class="toggle-container">
-            <span class="toggle-label"><img src="img/icon-colon.svg" class="settings-icon" alt="Blinking Colon" />Blinking colon</span>
+            <span class="toggle-label"><img src="img/icon-sun.svg" class="settings-icon" alt="Dark Mode" />Dark mode</span>
             <label class="toggle-switch">
-              <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
+              <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -530,13 +514,6 @@
               <button class="alignment-btn" data-align="center" onclick="setTextAlignment('center')">C</button>
               <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">R</button>
             </div>
-          </div>
-          <div class="toggle-container">
-            <span class="toggle-label"><img src="img/icon-recycle.svg" class="settings-icon" alt="Date Position" />Date position top</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="datePositionToggle" onchange="toggleDatePosition()">
-              <span class="toggle-slider"></span>
-            </label>
           </div>
           <div class="color-container">
             <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
@@ -557,33 +534,33 @@
     </div>
   </div>
   <script>
-    let blinkEnabled = false;
     let showSeconds = false;
     let currentTimezone = 'local';
     let useMilitaryTime = false;
     let textColor = '#32302C';
+    let backgroundColor = '#F9F9F9';
     let textAlignment = 'left';
-    let dateAbove = false;
+    let isDarkMode = false;
 
     const DEFAULT_SETTINGS = {
-      blinkEnabled: false,
       showSeconds: false,
       currentTimezone: 'local',
       useMilitaryTime: false,
       textColor: '#32302C',
+      backgroundColor: '#F9F9F9',
       textAlignment: 'left',
-      dateAbove: false
+      isDarkMode: false
     };
 
     function saveSettings() {
       const settings = {
-        blinkEnabled,
         showSeconds,
         currentTimezone,
         useMilitaryTime,
         textColor,
+        backgroundColor,
         textAlignment,
-        dateAbove
+        isDarkMode
       };
       console.log('Saving settings:', settings);
       localStorage.setItem('clockSettings', JSON.stringify(settings));
@@ -603,32 +580,36 @@
       document.querySelector('.alignment-btn[data-align="left"]').classList.add('active');
 
       // Reset all toggles
-      document.getElementById('blinkToggle').checked = DEFAULT_SETTINGS.blinkEnabled;
       document.getElementById('secondsToggle').checked = DEFAULT_SETTINGS.showSeconds;
       document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
       document.getElementById('timezoneSelect').value = DEFAULT_SETTINGS.currentTimezone;
-      document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
-      document.getElementById('datePositionToggle').checked = DEFAULT_SETTINGS.dateAbove;
+      document.getElementById('darkModeToggle').checked = DEFAULT_SETTINGS.isDarkMode;
 
       // Reset state variables
-      blinkEnabled = DEFAULT_SETTINGS.blinkEnabled;
       showSeconds = DEFAULT_SETTINGS.showSeconds;
       currentTimezone = DEFAULT_SETTINGS.currentTimezone;
       useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
-      textColor = DEFAULT_SETTINGS.textColor;
-      dateAbove = DEFAULT_SETTINGS.dateAbove;
+      isDarkMode = DEFAULT_SETTINGS.isDarkMode;
+
+      // Set colors based on dark mode
+      if (isDarkMode) {
+        backgroundColor = '#32302C';
+        textColor = '#F9F9F9';
+      } else {
+        backgroundColor = '#F9F9F9';
+        textColor = '#32302C';
+      }
+      document.getElementById('colorPicker').value = backgroundColor;
 
       // Update the clock display
       document.querySelector('.clock').style.color = textColor;
-      document.querySelector('.date').style.color = textColor;
-      
-      // Reset date position buttons
-      document.querySelectorAll('[data-position]').forEach(btn => {
-        btn.classList.remove('active');
+      document.querySelectorAll('.time-section').forEach(section => {
+        section.style.backgroundColor = backgroundColor;
       });
-      document.querySelector('[data-position="below"]').classList.add('active');
+      document.querySelectorAll('.colon').forEach(colon => {
+        colon.style.color = isDarkMode ? backgroundColor : '#32302C';
+      });
       
-      updateDatePosition();
       updateClock();
       saveSettings();
     }
@@ -653,51 +634,37 @@
       m = m < 10 ? '0' + m : m;
       s = s < 10 ? '0' + s : s;
       
-      const timeDisplay = `${h}<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${m}`;
-      const secondsDisplay = showSeconds ? `<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${s}` : '';
+      const timeDisplay = `<span class="time-section" style="background-color: ${backgroundColor}">${h}</span><span class="colon" style="color: ${isDarkMode ? backgroundColor : '#32302C'}">:</span><span class="time-section" style="background-color: ${backgroundColor}">${m}</span>`;
+      const secondsDisplay = showSeconds ? `<span class="colon" style="color: ${isDarkMode ? backgroundColor : '#32302C'}">:</span><span class="time-section" style="background-color: ${backgroundColor}">${s}</span>` : '';
       
       document.getElementById('clock').innerHTML = timeDisplay + secondsDisplay;
-
-      // Update date display
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const month = months[now.getMonth()];
-      const date = now.getDate();
-      const weekday = weekdays[now.getDay()];
-      document.getElementById('date').textContent = `${month} ${date}, ${weekday}`;
+      console.log('Clock updated with colors:', {
+        backgroundColor,
+        isDarkMode,
+        colonColor: isDarkMode ? backgroundColor : '#32302C'
+      });
     }
 
     function updateColor() {
-      textColor = document.getElementById('colorPicker').value;
-      document.querySelector('.clock').style.color = textColor;
-      document.querySelector('.date').style.color = textColor;
-      console.log('Color updated:', textColor);
+      backgroundColor = document.getElementById('colorPicker').value;
+      console.log('Updating colors:', {
+        backgroundColor,
+        isDarkMode,
+        colonColor: isDarkMode ? backgroundColor : '#32302C'
+      });
+      document.querySelectorAll('.time-section').forEach(section => {
+        section.style.backgroundColor = backgroundColor;
+      });
+      document.querySelectorAll('.colon').forEach(colon => {
+        colon.style.color = isDarkMode ? backgroundColor : '#32302C';
+      });
+      updateClock(); // Force a clock update to ensure colors are applied
       saveSettings();
     }
     
     function flipCard() {
       const container = document.querySelector('.flip-container');
       container.classList.toggle('flipped');
-      
-      // Remove blink class from colons when showing settings
-      if (container.classList.contains('flipped')) {
-        document.querySelectorAll('.colon').forEach(colon => {
-          colon.classList.remove('blink');
-        });
-      } else {
-        // Restore blink class if blinking is enabled
-        if (blinkEnabled) {
-          document.querySelectorAll('.colon').forEach(colon => {
-            colon.classList.add('blink');
-          });
-        }
-      }
-    }
-
-    function toggleBlink() {
-      blinkEnabled = document.getElementById('blinkToggle').checked;
-      updateClock();
-      saveSettings();
     }
 
     function toggleSeconds() {
@@ -709,6 +676,37 @@
     function toggleMilitaryTime() {
       useMilitaryTime = document.getElementById('militaryTimeToggle').checked;
       updateClock();
+      saveSettings();
+    }
+
+    function toggleDarkMode() {
+      isDarkMode = document.getElementById('darkModeToggle').checked;
+      console.log('Toggling dark mode:', {
+        isDarkMode,
+        backgroundColor,
+        colonColor: isDarkMode ? backgroundColor : '#32302C'
+      });
+
+      if (isDarkMode) {
+        // Set default dark mode colors
+        backgroundColor = '#32302C';
+        textColor = '#F9F9F9';
+        document.getElementById('colorPicker').value = backgroundColor;
+      } else {
+        // Reset to default light mode colors
+        backgroundColor = '#F9F9F9';
+        textColor = '#32302C';
+        document.getElementById('colorPicker').value = backgroundColor;
+      }
+
+      document.querySelector('.clock').style.color = textColor;
+      document.querySelectorAll('.time-section').forEach(section => {
+        section.style.backgroundColor = backgroundColor;
+      });
+      document.querySelectorAll('.colon').forEach(colon => {
+        colon.style.color = isDarkMode ? backgroundColor : '#32302C';
+      });
+      updateClock(); // Force a clock update to ensure colors are applied
       saveSettings();
     }
 
@@ -732,21 +730,6 @@
       console.log('Alignment updated:', textAlignment);
       saveSettings();
     }
-
-    function toggleDatePosition() {
-      dateAbove = document.getElementById('datePositionToggle').checked;
-      updateDatePosition();
-      saveSettings();
-    }
-
-    function updateDatePosition() {
-      const clockWrapper = document.querySelector('.clock-wrapper');
-      if (dateAbove) {
-        clockWrapper.classList.add('date-above');
-      } else {
-        clockWrapper.classList.remove('date-above');
-      }
-    }
     
     // Initialize
     const savedSettings = localStorage.getItem('clockSettings');
@@ -756,37 +739,36 @@
         const settings = JSON.parse(savedSettings);
         console.log('Parsed settings:', settings);
         // Restore all settings with fallback to defaults
-        blinkEnabled = settings.blinkEnabled ?? DEFAULT_SETTINGS.blinkEnabled;
         showSeconds = settings.showSeconds ?? DEFAULT_SETTINGS.showSeconds;
         currentTimezone = settings.currentTimezone ?? DEFAULT_SETTINGS.currentTimezone;
         useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
         textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
+        backgroundColor = settings.backgroundColor ?? DEFAULT_SETTINGS.backgroundColor;
         textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
-        dateAbove = settings.dateAbove ?? DEFAULT_SETTINGS.dateAbove;
+        isDarkMode = settings.isDarkMode ?? DEFAULT_SETTINGS.isDarkMode;
         
         console.log('Restored settings:', {
           textColor,
+          backgroundColor,
           textAlignment,
-          dateAbove
+          isDarkMode
         });
         
         // Update UI to reflect saved settings
-        document.getElementById('blinkToggle').checked = blinkEnabled;
         document.getElementById('secondsToggle').checked = showSeconds;
         document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
         document.getElementById('timezoneSelect').value = currentTimezone;
-        document.getElementById('colorPicker').value = textColor;
-        document.getElementById('datePositionToggle').checked = dateAbove;
+        document.getElementById('colorPicker').value = backgroundColor;
+        document.getElementById('darkModeToggle').checked = isDarkMode;
         
-        // Update position buttons
-        document.querySelectorAll('[data-position]').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.position === dateAbove);
+        // Apply saved colors and alignment
+        document.querySelector('.clock').style.color = isDarkMode ? '#F9F9F9' : textColor;
+        document.querySelectorAll('.time-section').forEach(section => {
+          section.style.backgroundColor = backgroundColor;
         });
-        
-        // Apply saved color and alignment
-        document.querySelector('.clock').style.color = textColor;
-        document.querySelector('.date').style.color = textColor;
-        updateDatePosition();
+        document.querySelectorAll('.colon').forEach(colon => {
+          colon.style.color = isDarkMode ? backgroundColor : '#32302C';
+        });
         setTextAlignment(textAlignment);
         updateClock();
       } catch (error) {
@@ -799,9 +781,6 @@
       // No saved settings, use defaults
       resetSettings();
     }
-
-    // Set initial button states for date position
-    document.querySelector('[data-position="below"]').classList.add('active');
 
     // Update Local Time option with detected timezone
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
