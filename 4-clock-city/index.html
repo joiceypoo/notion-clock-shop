@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notion Clock Widget</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .flip-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+    }
+    .flipper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-container.flipped .flipper {
+      transform: rotateY(180deg);
+    }
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 12px;
+      min-width: fit-content;
+      overflow: hidden;
+    }
+    .back {
+      transform: rotateY(180deg);
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #ededed;
+      box-shadow: none;
+      position: relative;
+      height: auto;
+      padding: 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-width: 240px;
+    }
+    .clock-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .clock-container.align-left {
+      justify-content: flex-start;
+    }
+    .clock-container.align-center {
+      justify-content: center;
+    }
+    .clock-container.align-right {
+      justify-content: flex-end;
+    }
+    .clock-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .clock-wrapper.date-above {
+      flex-direction: column-reverse;
+    }
+    .clock {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-size: 48px;
+      color: #32302C;
+      letter-spacing: 0;
+      font-weight: 100;
+      display: inline-flex;
+      align-items: center;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .colon {
+      display: inline-block;
+      margin: 0;
+      width: 0.3em;
+      text-align: center;
+      position: relative;
+      top: -0.1em;
+    }
+    .colon.blink {
+      animation: blink 6s infinite;
+      transition: opacity 0.6s linear;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      15% { opacity: 0; }
+      35% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .edit-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      color: #666;
+      font-size: 16px;
+      padding: 0;
+      z-index: 2;
+    }
+    .clock-container:hover .edit-button {
+      opacity: 0.8;
+    }
+    .flip-container.flipped .edit-button {
+      display: none;
+    }
+    .settings-content {
+      text-align: center;
+      width: 100%;
+      color: #222;
+      font-size: 15px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .toggle-container, .timezone-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0;
+      padding: 8px 0;
+      flex: 0 0 auto;
+    }
+    .toggle-label, .timezone-label, .color-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-weight: 400;
+      font-size: 15px;
+      color: #32302C;
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    .timezone-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-weight: 400;
+      font-size: 15px;
+      color: #32302C;
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      text-align: left;
+    }
+    .timezone-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin: 0;
+      padding: 8px 0;
+      flex: 0 0 auto;
+      position: relative;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .timezone-select {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f7f7f7;
+      border: 1px solid #ededed;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .timezone-select:hover {
+      background: #f0f0f0;
+    }
+    .timezone-select-text {
+      font-size: 15px;
+      color: #32302C;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .timezone-container.searching .timezone-select-icon {
+      transform: rotate(180deg);
+    }
+    .timezone-search-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      z-index: 1;
+      width: 100%;
+    }
+    .timezone-container.searching .timezone-search-wrapper {
+      position: relative;
+      top: auto;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      width: 100%;
+    }
+    .timezone-container.searching .timezone-select {
+      display: none;
+    }
+    .timezone-search {
+      width: 100%;
+      height: 100%;
+      font-size: 15px;
+      font-weight: 400;
+      color: #32302C;
+      background: #f7f7f7;
+      border: 1px solid #ededed;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+    .timezone-search:focus {
+      background: white;
+      border-color: #2383e2;
+      box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.1);
+    }
+    .timezone-search::placeholder {
+      color: #ACABA9;
+    }
+    .timezone-results {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ededed;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .timezone-results.active {
+      display: block;
+    }
+    .timezone-result {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 15px;
+      color: #32302C;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    .timezone-result:hover {
+      background-color: #f7f7f7;
+    }
+    .timezone-result.selected {
+      background-color: #f0f0f0;
+    }
+    .timezone-result .city {
+      font-weight: 400;
+    }
+    .timezone-result .timezone-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ACABA9;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    .timezone-result .timezone-offset {
+      background: #f7f7f7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    .timezone-result .timezone-name {
+      color: #787774;
+    }
+    .timezone-no-results {
+      padding: 12px;
+      text-align: center;
+      color: #787774;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    .timezone-section-header {
+      padding: 8px 12px;
+      font-size: 15px;
+      color: #787774;
+      background: #f7f7f7;
+      font-weight: 400;
+      border-bottom: 1px solid #ededed;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
+    .color-picker {
+      width: 22px;
+      height: 22px;
+      border-radius: 10px;
+      border: 2px solid #ededed;
+      cursor: pointer;
+      padding: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      background: none;
+    }
+    .color-picker::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    .color-picker::-webkit-color-swatch {
+      border: none;
+      border-radius: 8px;
+    }
+    .color-picker::-moz-color-swatch {
+      border: none;
+      border-radius: 8px;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 32px;
+      height: 18px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e9e9eb;
+      transition: .3s;
+      border-radius: 16px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    input:checked + .toggle-slider {
+      background-color: #34c759;
+    }
+    input:checked + .toggle-slider:before {
+      transform: translateX(14px);
+    }
+    .seconds {
+      font-size: 1em;
+      margin-left: 2px;
+    }
+    .reset-button {
+      background: none;
+      border: none;
+      color: #32302C;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      font-weight: 400;
+      cursor: pointer;
+      padding: 8px 0;
+      margin: 0;
+      text-align: left;
+      text-decoration: none;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+    .reset-button:hover {
+      color: #ed5561;
+    }
+    .reset-button:hover .settings-icon {
+      filter: invert(45%) sepia(99%) saturate(1352%) hue-rotate(325deg);
+    }
+    .reset-button:active {
+      color: #32302C;
+    }
+    .reset-button:active .settings-icon {
+      filter: none;
+    }
+    .nav-done-button {
+      color: #787774;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0 0 8px 0;
+      flex: 0 0 auto;
+    }
+    .nav-done-button:active {
+      color: #888;
+    }
+    .settings-divider {
+      border: none;
+      border-bottom: 1px solid #ededed;
+      margin: 0;
+      height: 0;
+    }
+    .settings-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 10px;
+      display: inline-block;
+      transition: filter 0.2s;
+    }
+    .edit-icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      background: #32302C;
+      box-sizing: border-box;
+      transition: opacity 0.2s;
+      padding: 5px;
+    }
+    .edit-icon-button:hover {
+      opacity: 0.8;
+    }
+    .edit-icon-button img {
+      filter: brightness(0) invert(1);
+      width: 14px;
+      height: 14px;
+      display: block;
+      vertical-align: middle;
+    }
+    .flip-container.flipped .edit-icon-button {
+      opacity: 0.8;
+    }
+    .color-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0;
+      padding: 8px 0;
+      flex: 0 0 auto;
+    }
+    .alignment-buttons {
+      display: flex;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+    .alignment-btn {
+      background: none;
+      border: 1px solid #ededed;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 13px;
+      color: #ACABA9;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .alignment-btn.active {
+      background: #2383e2;
+      color: white;
+    }
+    .say-hi-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0 0 0;
+      flex: 0 0 auto;
+    }
+    .say-hi-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+    }
+    .say-hi-label {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 15px;
+      color: #32302C;
+      font-weight: 400;
+    }
+    .say-hi-email {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+      font-size: 14px;
+      color: #ACABA9;
+      text-decoration: none;
+      font-weight: 300;
+      cursor: pointer;
+    }
+    .say-hi-img {
+      height: 40px;
+      width: 40px;
+      border-radius: 1000px;
+      border: 1px solid #ededed;
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
+    .location {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      color: #32302C;
+      letter-spacing: 0;
+      font-weight: 400;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="flip-container">
+    <div class="flipper">
+      <div class="front">
+        <div class="clock-container">
+          <button class="edit-button" onclick="flipCard()">
+            <span class="edit-icon-button">
+              <img src="img/icon-butterfly.svg" alt="Settings" />
+            </span>
+          </button>
+          <div class="clock-wrapper">
+            <span class="clock" id="clock">12:55</span>
+            <span class="location" id="location">Local Time</span>
+          </div>
+        </div>
+      </div>
+      <div class="back">
+        <div class="settings-content">
+          <button class="nav-done-button" onclick="flipCard()">
+            <img src="img/icon-chevron-left.svg" alt="Back" style="width:11px;height:11px;display:inline-block;vertical-align:middle;" />
+            Clock
+          </button>
+          <div class="timezone-container">
+            <label class="timezone-label"><img src="img/icon-croissant.svg" class="settings-icon" alt="Time Zone" />Timezone</label>
+            <div class="timezone-select" onclick="toggleTimezoneSearch()">
+              <span class="timezone-select-text" id="timezoneSelectText">Local Time</span>
+            </div>
+            <div class="timezone-search-wrapper">
+              <input type="text" class="timezone-search" id="timezoneSearch" placeholder="Search for a city..." />
+              <div class="timezone-results" id="timezoneResults"></div>
+            </div>
+          </div>
+          <hr class="settings-divider" />
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-sun.svg" class="settings-icon" alt="24 hour clock" />24 hour clock</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="militaryTimeToggle" onchange="toggleMilitaryTime()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-infinity.svg" class="settings-icon" alt="Seconds" />Show seconds</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="secondsToggle" onchange="toggleSeconds()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-colon.svg" class="settings-icon" alt="Blinking Colon" />Blinking colon</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="blinkToggle" onchange="toggleBlink()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-container">
+            <span class="toggle-label"><img src="img/icon-cursor-text.svg" class="settings-icon" alt="Alignment" />Alignment</span>
+            <div class="alignment-buttons">
+              <button class="alignment-btn" data-align="left" onclick="setTextAlignment('left')">L</button>
+              <button class="alignment-btn" data-align="center" onclick="setTextAlignment('center')">C</button>
+              <button class="alignment-btn" data-align="right" onclick="setTextAlignment('right')">R</button>
+            </div>
+          </div>
+          <div class="color-container">
+            <label class="color-label"><img src="img/icon-marquee.svg" class="settings-icon" alt="Color" />Color</label>
+            <input type="color" class="color-picker" id="colorPicker" value="#32302C" onchange="updateColor()">
+          </div>
+          <hr class="settings-divider" />
+          <button class="reset-button" onclick="resetSettings()"><img src="img/icon-fish.svg" class="settings-icon" alt="Reset Styles" />Reset</button>
+          <hr class="settings-divider" />
+          <div class="say-hi-container">
+            <div class="say-hi-content">
+              <div class="say-hi-label">Say hi :)</div>
+              <a class="say-hi-email" href="mailto:clementinesaintchild@gmail.com">clementinesaintchild@gmail.com</a>
+            </div>
+            <img src="img/clem.png" alt="Clem" class="say-hi-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let blinkEnabled = false;
+    let showSeconds = false;
+    let currentTimezone = 'local';
+    let selectedCity = 'Local Time';
+    let useMilitaryTime = false;
+    let textColor = '#32302C';
+    let textAlignment = 'left';
+
+    const DEFAULT_SETTINGS = {
+      blinkEnabled: false,
+      showSeconds: false,
+      currentTimezone: 'local',
+      selectedCity: 'Local Time',
+      useMilitaryTime: false,
+      textColor: '#32302C',
+      textAlignment: 'left'
+    };
+
+    function saveSettings() {
+      const settings = {
+        blinkEnabled,
+        showSeconds,
+        currentTimezone,
+        selectedCity,
+        useMilitaryTime,
+        textColor,
+        textAlignment
+      };
+      console.log('Saving settings:', settings);
+      localStorage.setItem('clockSettings', JSON.stringify(settings));
+    }
+
+    function resetSettings() {
+      // First reset the text alignment
+      textAlignment = 'left';
+      const clockContainer = document.querySelector('.clock-container');
+      clockContainer.className = 'clock-container';
+      clockContainer.classList.add('align-left');
+      
+      // Update alignment buttons
+      document.querySelectorAll('.alignment-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.alignment-btn[data-align="left"]').classList.add('active');
+
+      // Reset all toggles
+      document.getElementById('blinkToggle').checked = DEFAULT_SETTINGS.blinkEnabled;
+      document.getElementById('secondsToggle').checked = DEFAULT_SETTINGS.showSeconds;
+      document.getElementById('militaryTimeToggle').checked = DEFAULT_SETTINGS.useMilitaryTime;
+      document.getElementById('timezoneSearch').value = DEFAULT_SETTINGS.selectedCity;
+      document.getElementById('colorPicker').value = DEFAULT_SETTINGS.textColor;
+
+      // Reset state variables
+      blinkEnabled = DEFAULT_SETTINGS.blinkEnabled;
+      showSeconds = DEFAULT_SETTINGS.showSeconds;
+      currentTimezone = DEFAULT_SETTINGS.currentTimezone;
+      selectedCity = DEFAULT_SETTINGS.selectedCity;
+      useMilitaryTime = DEFAULT_SETTINGS.useMilitaryTime;
+      textColor = DEFAULT_SETTINGS.textColor;
+
+      // Update the clock display
+      document.querySelector('.clock').style.color = textColor;
+      
+      updateClock();
+      saveSettings();
+    }
+
+    function updateClock() {
+      let now;
+      if (currentTimezone === 'local') {
+        now = new Date();
+      } else if (currentTimezone.startsWith('UTC')) {
+        // Handle UTC timezone
+        const offset = currentTimezone.replace('UTC', '');
+        const sign = offset[0];
+        const [hours, minutes = '0'] = offset.slice(1).split(':');
+        const totalOffset = (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
+        now = new Date(Date.now() + totalOffset * 60000);
+      } else {
+        now = new Date(new Date().toLocaleString('en-US', { timeZone: currentTimezone }));
+      }
+      
+      let h = now.getHours();
+      let m = now.getMinutes();
+      let s = now.getSeconds();
+
+      if (!useMilitaryTime) {
+        h = h % 12 || 12;
+      }
+      
+      h = h < 10 ? '0' + h : h;
+      m = m < 10 ? '0' + m : m;
+      s = s < 10 ? '0' + s : s;
+      
+      const timeDisplay = `${h}<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${m}`;
+      const secondsDisplay = showSeconds ? `<span class="colon${blinkEnabled ? ' blink' : ''}">:</span>${s}` : '';
+      
+      document.getElementById('clock').innerHTML = timeDisplay + secondsDisplay;
+
+      // Update location display
+      const locationElement = document.getElementById('location');
+      if (currentTimezone === 'local') {
+        locationElement.textContent = 'Local Time';
+      } else if (currentTimezone.startsWith('UTC')) {
+        locationElement.textContent = currentTimezone;
+      } else {
+        locationElement.textContent = selectedCity;
+      }
+    }
+
+    function updateColor() {
+      textColor = document.getElementById('colorPicker').value;
+      document.querySelector('.clock').style.color = textColor;
+      console.log('Color updated:', textColor);
+      saveSettings();
+    }
+    
+    function flipCard() {
+      const container = document.querySelector('.flip-container');
+      container.classList.toggle('flipped');
+      
+      // Remove blink class from colons when showing settings
+      if (container.classList.contains('flipped')) {
+        document.querySelectorAll('.colon').forEach(colon => {
+          colon.classList.remove('blink');
+        });
+      } else {
+        // Restore blink class if blinking is enabled
+        if (blinkEnabled) {
+          document.querySelectorAll('.colon').forEach(colon => {
+            colon.classList.add('blink');
+          });
+        }
+      }
+    }
+
+    function toggleBlink() {
+      blinkEnabled = document.getElementById('blinkToggle').checked;
+      updateClock();
+      saveSettings();
+    }
+
+    function toggleSeconds() {
+      showSeconds = document.getElementById('secondsToggle').checked;
+      updateClock();
+      saveSettings();
+    }
+
+    function toggleMilitaryTime() {
+      useMilitaryTime = document.getElementById('militaryTimeToggle').checked;
+      updateClock();
+      saveSettings();
+    }
+
+    function toggleTimezoneSearch() {
+      const container = document.querySelector('.timezone-container');
+      const searchInput = document.getElementById('timezoneSearch');
+      container.classList.add('searching');
+      searchInput.focus();
+      updateTimezoneSearch();
+    }
+
+    function updateTimezoneSearch() {
+      const searchInput = document.getElementById('timezoneSearch');
+      const resultsContainer = document.getElementById('timezoneResults');
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      const container = document.querySelector('.timezone-container');
+
+      // Clear previous results
+      resultsContainer.innerHTML = '';
+
+      if (searchTerm.length === 0) {
+        resultsContainer.classList.remove('active');
+        return;
+      }
+
+      // Check if the search term is a UTC offset
+      const utcMatch = searchTerm.match(/^utc[+-]?\d{1,2}(:\d{2})?$/i);
+      if (utcMatch) {
+        const utcOffset = utcMatch[0].toUpperCase();
+        const result = document.createElement('div');
+        result.className = 'timezone-result';
+        result.innerHTML = `
+          <span class="city">${utcOffset}</span>
+          <div class="timezone-info">
+            <span class="timezone-offset">${utcOffset}</span>
+          </div>
+        `;
+        result.addEventListener('click', () => {
+          currentTimezone = utcOffset;
+          selectedCity = utcOffset;
+          document.getElementById('timezoneSelectText').textContent = utcOffset;
+          container.classList.remove('searching');
+          searchInput.value = '';
+          resultsContainer.classList.remove('active');
+      updateClock();
+      saveSettings();
+        });
+        resultsContainer.appendChild(result);
+        resultsContainer.classList.add('active');
+        return;
+      }
+
+      // Filter timezones
+      const filteredTimezones = timezones.filter(tz => 
+        tz.city.toLowerCase().includes(searchTerm) || 
+        (tz.name && tz.name.toLowerCase().includes(searchTerm)) ||
+        (tz.offset && tz.offset.toLowerCase().includes(searchTerm))
+      );
+
+      if (filteredTimezones.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'timezone-no-results';
+        noResults.textContent = 'No cities found. Try searching with UTC offset (e.g., UTC+5:30)';
+        resultsContainer.appendChild(noResults);
+      } else {
+        // Group results by region
+        const groupedResults = filteredTimezones.reduce((acc, tz) => {
+          const region = tz.region || 'Other';
+          if (!acc[region]) acc[region] = [];
+          acc[region].push(tz);
+          return acc;
+        }, {});
+
+        // Display results by region
+        Object.entries(groupedResults).forEach(([region, tzs]) => {
+          const header = document.createElement('div');
+          header.className = 'timezone-section-header';
+          header.textContent = region;
+          resultsContainer.appendChild(header);
+
+          tzs.forEach(tz => {
+            const result = document.createElement('div');
+            result.className = 'timezone-result';
+            if (tz.value === currentTimezone) {
+              result.classList.add('selected');
+            }
+            result.innerHTML = `
+              <span class="city">${tz.city}</span>
+              <div class="timezone-info">
+                ${tz.name ? `<span class="timezone-name">${tz.name}</span>` : ''}
+                ${tz.offset ? `<span class="timezone-offset">${tz.offset}</span>` : ''}
+              </div>
+            `;
+            result.addEventListener('click', () => {
+              currentTimezone = tz.value;
+              selectedCity = tz.city;
+              document.getElementById('timezoneSelectText').textContent = tz.city;
+              container.classList.remove('searching');
+              searchInput.value = '';
+              resultsContainer.classList.remove('active');
+              updateClock();
+              saveSettings();
+            });
+            resultsContainer.appendChild(result);
+          });
+        });
+      }
+
+      resultsContainer.classList.add('active');
+    }
+
+    // Close timezone results when clicking outside
+    document.addEventListener('click', (e) => {
+      const container = document.querySelector('.timezone-container');
+      const searchWrapper = document.querySelector('.timezone-search-wrapper');
+      if (!container.contains(e.target)) {
+        container.classList.remove('searching');
+        document.getElementById('timezoneResults').classList.remove('active');
+      }
+    });
+
+    // Initialize timezone search
+    const timezoneSearch = document.getElementById('timezoneSearch');
+    timezoneSearch.addEventListener('input', updateTimezoneSearch);
+    timezoneSearch.addEventListener('focus', updateTimezoneSearch);
+
+    // Timezone data with cities
+    const timezones = [
+      { city: 'Local Time', value: 'local', region: 'System' },
+      // American Cities
+      // Eastern Time (UTC-5)
+      { city: 'New York', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Miami', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Boston', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Philadelphia', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Atlanta', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Washington DC', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Detroit', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Pittsburgh', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Charlotte', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Orlando', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Tampa', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Nashville', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Indianapolis', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Cleveland', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Cincinnati', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Columbus', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Richmond', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Buffalo', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Raleigh', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      { city: 'Jacksonville', value: 'America/New_York', name: 'Eastern Time', offset: 'UTC-5', region: 'USA - Eastern' },
+      // Central Time (UTC-6)
+      { city: 'Chicago', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Houston', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Dallas', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Minneapolis', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'New Orleans', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'St. Louis', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Kansas City', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Oklahoma City', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Memphis', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Milwaukee', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Austin', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'San Antonio', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'Fort Worth', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      { city: 'El Paso', value: 'America/Chicago', name: 'Central Time', offset: 'UTC-6', region: 'USA - Central' },
+      // Mountain Time (UTC-7)
+      { city: 'Denver', value: 'America/Denver', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Phoenix', value: 'America/Phoenix', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Salt Lake City', value: 'America/Denver', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Albuquerque', value: 'America/Denver', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Tucson', value: 'America/Phoenix', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Las Vegas', value: 'America/Denver', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Boise', value: 'America/Boise', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      { city: 'Billings', value: 'America/Denver', name: 'Mountain Time', offset: 'UTC-7', region: 'USA - Mountain' },
+      // Pacific Time (UTC-8)
+      { city: 'Los Angeles', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'San Francisco', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Seattle', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Portland', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'San Diego', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Sacramento', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'San Jose', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Oakland', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Fresno', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      { city: 'Long Beach', value: 'America/Los_Angeles', name: 'Pacific Time', offset: 'UTC-8', region: 'USA - Pacific' },
+      // Alaska Time (UTC-9)
+      { city: 'Anchorage', value: 'America/Anchorage', name: 'Alaska Time', offset: 'UTC-9', region: 'USA - Alaska' },
+      { city: 'Juneau', value: 'America/Anchorage', name: 'Alaska Time', offset: 'UTC-9', region: 'USA - Alaska' },
+      { city: 'Fairbanks', value: 'America/Anchorage', name: 'Alaska Time', offset: 'UTC-9', region: 'USA - Alaska' },
+      // Hawaii Time (UTC-10)
+      { city: 'Honolulu', value: 'Pacific/Honolulu', name: 'Hawaii Time', offset: 'UTC-10', region: 'USA - Hawaii' },
+      // Major World Cities
+      // Europe
+      { city: 'London', value: 'Europe/London', name: 'British Time', offset: 'UTC+0', region: 'Europe' },
+      { city: 'Paris', value: 'Europe/Paris', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Berlin', value: 'Europe/Berlin', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Rome', value: 'Europe/Rome', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Madrid', value: 'Europe/Madrid', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Amsterdam', value: 'Europe/Amsterdam', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Brussels', value: 'Europe/Brussels', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Vienna', value: 'Europe/Vienna', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Zurich', value: 'Europe/Zurich', name: 'Central European Time', offset: 'UTC+1', region: 'Europe' },
+      { city: 'Moscow', value: 'Europe/Moscow', name: 'Moscow Time', offset: 'UTC+3', region: 'Europe' },
+      { city: 'Istanbul', value: 'Europe/Istanbul', name: 'Turkey Time', offset: 'UTC+3', region: 'Europe' },
+      // Asia
+      { city: 'Tokyo', value: 'Asia/Tokyo', name: 'Japan Time', offset: 'UTC+9', region: 'Asia' },
+      { city: 'Shanghai', value: 'Asia/Shanghai', name: 'China Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Beijing', value: 'Asia/Shanghai', name: 'China Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Hong Kong', value: 'Asia/Hong_Kong', name: 'Hong Kong Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Singapore', value: 'Asia/Singapore', name: 'Singapore Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Seoul', value: 'Asia/Seoul', name: 'Korea Time', offset: 'UTC+9', region: 'Asia' },
+      { city: 'Mumbai', value: 'Asia/Kolkata', name: 'India Time', offset: 'UTC+5:30', region: 'Asia' },
+      { city: 'New Delhi', value: 'Asia/Kolkata', name: 'India Time', offset: 'UTC+5:30', region: 'Asia' },
+      { city: 'Dubai', value: 'Asia/Dubai', name: 'Gulf Time', offset: 'UTC+4', region: 'Asia' },
+      { city: 'Bangkok', value: 'Asia/Bangkok', name: 'Indochina Time', offset: 'UTC+7', region: 'Asia' },
+      { city: 'Jakarta', value: 'Asia/Jakarta', name: 'Western Indonesian Time', offset: 'UTC+7', region: 'Asia' },
+      { city: 'Kuala Lumpur', value: 'Asia/Kuala_Lumpur', name: 'Malaysia Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Manila', value: 'Asia/Manila', name: 'Philippine Time', offset: 'UTC+8', region: 'Asia' },
+      { city: 'Taipei', value: 'Asia/Taipei', name: 'Taiwan Time', offset: 'UTC+8', region: 'Asia' },
+      // Oceania
+      { city: 'Sydney', value: 'Australia/Sydney', name: 'Australian Eastern Time', offset: 'UTC+10', region: 'Oceania' },
+      { city: 'Melbourne', value: 'Australia/Melbourne', name: 'Australian Eastern Time', offset: 'UTC+10', region: 'Oceania' },
+      { city: 'Brisbane', value: 'Australia/Brisbane', name: 'Australian Eastern Time', offset: 'UTC+10', region: 'Oceania' },
+      { city: 'Perth', value: 'Australia/Perth', name: 'Australian Western Time', offset: 'UTC+8', region: 'Oceania' },
+      { city: 'Auckland', value: 'Pacific/Auckland', name: 'New Zealand Time', offset: 'UTC+12', region: 'Oceania' },
+      { city: 'Wellington', value: 'Pacific/Auckland', name: 'New Zealand Time', offset: 'UTC+12', region: 'Oceania' },
+      // Africa
+      { city: 'Cairo', value: 'Africa/Cairo', name: 'Egypt Time', offset: 'UTC+2', region: 'Africa' },
+      { city: 'Johannesburg', value: 'Africa/Johannesburg', name: 'South Africa Time', offset: 'UTC+2', region: 'Africa' },
+      { city: 'Cape Town', value: 'Africa/Johannesburg', name: 'South Africa Time', offset: 'UTC+2', region: 'Africa' },
+      { city: 'Lagos', value: 'Africa/Lagos', name: 'West Africa Time', offset: 'UTC+1', region: 'Africa' },
+      { city: 'Nairobi', value: 'Africa/Nairobi', name: 'East Africa Time', offset: 'UTC+3', region: 'Africa' },
+      { city: 'Casablanca', value: 'Africa/Casablanca', name: 'Morocco Time', offset: 'UTC+1', region: 'Africa' },
+      { city: 'Accra', value: 'Africa/Accra', name: 'Ghana Time', offset: 'UTC+0', region: 'Africa' },
+      { city: 'Addis Ababa', value: 'Africa/Addis_Ababa', name: 'East Africa Time', offset: 'UTC+3', region: 'Africa' }
+    ];
+
+    function setTextAlignment(alignment) {
+      textAlignment = alignment;
+      const clockContainer = document.querySelector('.clock-container');
+      clockContainer.className = 'clock-container';
+      clockContainer.classList.add(`align-${alignment}`);
+      
+      // Update button states
+      document.querySelectorAll('.alignment-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.align === alignment);
+      });
+      
+      console.log('Alignment updated:', textAlignment);
+      saveSettings();
+    }
+    
+    // Initialize
+    const savedSettings = localStorage.getItem('clockSettings');
+    console.log('Loaded settings:', savedSettings);
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings);
+        console.log('Parsed settings:', settings);
+        // Restore all settings with fallback to defaults
+        blinkEnabled = settings.blinkEnabled ?? DEFAULT_SETTINGS.blinkEnabled;
+        showSeconds = settings.showSeconds ?? DEFAULT_SETTINGS.showSeconds;
+        currentTimezone = settings.currentTimezone ?? DEFAULT_SETTINGS.currentTimezone;
+        selectedCity = settings.selectedCity ?? DEFAULT_SETTINGS.selectedCity;
+        useMilitaryTime = settings.useMilitaryTime ?? DEFAULT_SETTINGS.useMilitaryTime;
+        textColor = settings.textColor ?? DEFAULT_SETTINGS.textColor;
+        textAlignment = settings.textAlignment ?? DEFAULT_SETTINGS.textAlignment;
+        
+        console.log('Restored settings:', {
+          textColor,
+          textAlignment
+        });
+        
+        // Update UI to reflect saved settings
+        document.getElementById('blinkToggle').checked = blinkEnabled;
+        document.getElementById('secondsToggle').checked = showSeconds;
+        document.getElementById('militaryTimeToggle').checked = useMilitaryTime;
+        document.getElementById('timezoneSelectText').textContent = selectedCity;
+        document.getElementById('colorPicker').value = textColor;
+        
+        // Apply saved color and alignment
+        document.querySelector('.clock').style.color = textColor;
+        setTextAlignment(textAlignment);
+        updateClock();
+      } catch (error) {
+        console.error('Error loading saved settings:', error);
+        // If there's an error loading settings, use defaults
+        resetSettings();
+      }
+    } else {
+      console.log('No saved settings found, using defaults');
+      // No saved settings, use defaults
+      resetSettings();
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html> 
