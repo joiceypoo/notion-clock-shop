@@ -173,22 +173,20 @@
       flex: 0 0 auto;
       white-space: nowrap;
       text-align: left;
+      margin-right: 12px;
     }
     .timezone-container {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       margin: 0;
       padding: 8px 0;
       flex: 0 0 auto;
       position: relative;
       width: 100%;
-      flex-wrap: wrap;
-      gap: 8px;
     }
     .timezone-select {
       flex: 1;
-      min-width: 200px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -198,6 +196,7 @@
       padding: 6px 10px;
       cursor: pointer;
       transition: all 0.2s;
+      min-width: 0;
     }
     .timezone-select:hover {
       background: #f0f0f0;
@@ -224,15 +223,11 @@
       width: 100%;
     }
     .timezone-container.searching .timezone-search-wrapper {
-      position: relative;
-      top: auto;
-      left: auto;
-      right: auto;
-      bottom: auto;
-      width: 100%;
+      display: block;
     }
     .timezone-container.searching .timezone-select {
-      display: none;
+      opacity: 0;
+      pointer-events: none;
     }
     .timezone-search {
       width: 100%;
@@ -696,7 +691,6 @@
 
       // Update the clock display
       document.querySelector('.clock').style.color = textColor;
-      document.querySelector('.location').style.color = textColor;
       
       updateClock();
       saveSettings();
@@ -748,7 +742,6 @@
     function updateColor() {
       textColor = document.getElementById('colorPicker').value;
       document.querySelector('.clock').style.color = textColor;
-      document.querySelector('.location').style.color = textColor;
       console.log('Color updated:', textColor);
       saveSettings();
     }
@@ -1070,7 +1063,6 @@
         
         // Apply saved color and alignment
         document.querySelector('.clock').style.color = textColor;
-        document.querySelector('.location').style.color = textColor;
         setTextAlignment(textAlignment);
         updateClock();
       } catch (error) {
