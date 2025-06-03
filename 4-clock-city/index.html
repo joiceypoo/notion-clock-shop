@@ -545,10 +545,10 @@
     }
     .location {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-      font-size: 15px;
+      font-size: 16px;
       color: #32302C;
       letter-spacing: 0;
-      font-weight: 400;
+      font-weight: 300;
       text-align: center;
     }
   </style>
@@ -696,6 +696,7 @@
 
       // Update the clock display
       document.querySelector('.clock').style.color = textColor;
+      document.querySelector('.location').style.color = textColor;
       
       updateClock();
       saveSettings();
@@ -747,6 +748,7 @@
     function updateColor() {
       textColor = document.getElementById('colorPicker').value;
       document.querySelector('.clock').style.color = textColor;
+      document.querySelector('.location').style.color = textColor;
       console.log('Color updated:', textColor);
       saveSettings();
     }
@@ -1068,6 +1070,7 @@
         
         // Apply saved color and alignment
         document.querySelector('.clock').style.color = textColor;
+        document.querySelector('.location').style.color = textColor;
         setTextAlignment(textAlignment);
         updateClock();
       } catch (error) {
