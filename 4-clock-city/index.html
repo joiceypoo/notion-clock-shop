@@ -542,8 +542,9 @@
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
       font-size: 16px;
       color: #32302C;
+      opacity: 0.6;
       letter-spacing: 0;
-      font-weight: 300;
+      font-weight: 400;
       text-align: center;
     }
   </style>
@@ -691,6 +692,7 @@
 
       // Update the clock display
       document.querySelector('.clock').style.color = textColor;
+      document.getElementById('location').style.color = textColor;
       
       updateClock();
       saveSettings();
@@ -737,11 +739,13 @@
       } else {
         locationElement.textContent = selectedCity;
       }
+      locationElement.style.color = textColor;
     }
 
     function updateColor() {
       textColor = document.getElementById('colorPicker').value;
       document.querySelector('.clock').style.color = textColor;
+      document.getElementById('location').style.color = textColor;
       console.log('Color updated:', textColor);
       saveSettings();
     }
@@ -1063,6 +1067,7 @@
         
         // Apply saved color and alignment
         document.querySelector('.clock').style.color = textColor;
+        document.getElementById('location').style.color = textColor;
         setTextAlignment(textAlignment);
         updateClock();
       } catch (error) {
